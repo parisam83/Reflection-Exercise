@@ -58,4 +58,27 @@ public class ObjectMaker {
         return object;
     }
 
+    private Field[] getAllParentsFields(Class c){
+        if (c.getSuperclass() == null)
+            return c.getDeclaredFields();
+
+        Field[] superClassFields = getAllParentsFields(c.getSuperclass());
+        Field[] thisClassFields = c.getDeclaredFields();
+        Field[] ans = new Field[superClassFields.length + thisClassFields.length];
+        System.arraycopy(superClassFields, 0, ans, 0, superClassFields.length);
+        System.arraycopy(thisClassFields, 0, ans, superClassFields.length, thisClassFields.length);
+        return ans;
+    }
+
+    private Method[] getAllParentsMethods(Class c){
+        if (c.getSuperclass() == null)
+            return c.getDeclaredMethods();
+
+        Method[] superClassMethods = getAllParentsMethods(c.getSuperclass());
+        Method[] thisClassMethods = c.getDeclaredMethods();
+        Method[] ans = new Method[superClassMethods.length + thisClassMethods.length];
+        System.arraycopy(superClassMethods, 0, ans, 0, superClassMethods.length);
+        System.arraycopy(thisClassMethods, 0, ans, superClassMethods.length, thisClassMethods.length);
+        return ans;
+    }
 }
