@@ -55,7 +55,7 @@ public class ObjectMaker {
                     field.set(object, value);
             }
         }
-        return null;
+        return object;
     }
 
 }
