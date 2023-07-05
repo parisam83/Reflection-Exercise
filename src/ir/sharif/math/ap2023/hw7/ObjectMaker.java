@@ -36,14 +36,15 @@ public class ObjectMaker {
 
         for (Field field : fields){
             field.setAccessible(true);
-            Object value;
 
-            // Check if @Name is used and find the name of the field in the given map
-            if (field.getDeclaredAnnotation(Name.class) == null) value = values.get(field.getName());
-            else value = values.get(field.getDeclaredAnnotation(Name.class).name());
+            // Check if @Name is used and set the name of the field in fieldName
+            String fieldName;
+            if (field.getDeclaredAnnotation(Name.class) == null) fieldName = field.getName();
+            else fieldName = field.getDeclaredAnnotation(Name.class).name();
 
-            if (value != null) {
-                // Check if value is a List of not
+            // Check if fieldName key is available in the map
+            if (values.containsKey(fieldName)){
+                Object value = values.get(fieldName);
                 if (value instanceof List<?>){
                     Object valueToSet = Array.newInstance(field.getType().getComponentType(), ((List<?>) value).size());
                     for (int i = 0; i < ((List<?>) value).size(); i++)
