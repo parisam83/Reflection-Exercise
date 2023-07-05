@@ -27,8 +27,26 @@ public class ObjectMaker {
     public Object makeObject(Map<String, Object> values, String className) throws ReflectiveOperationException {
         ClassLoader classLoader = ObjectMaker.class.getClassLoader();
         Class givenClass = classLoader.loadClass(className);
-        Field[] fields = givenClass.getDeclaredFields();
-        Method[] methods = givenClass.getDeclaredMethods();
+        Field[] fields = getAllParentsFields(givenClass);
+        Method[] methods = getAllParentsMethods(givenClass);
+
+        for (Method method : methods)
+            if (method.getDeclaredAnnotation(UseAsConstructor.class) != null){
+                String[] args = method.getDeclaredAnnotation(UseAsConstructor.class).args();
+                Object[] elements = new Object[args.length];
+                boolean goToNextMethod = false;
+                for (int i = 0; i < args.length; i++){
+                    if (values.containsKey(args[i])) elements[i] = values.get(args[i]);
+                    else goToNextMethod = true;
+                }
+                if (!goToNextMethod){
+                    method.setAccessible(true);
+                    givenClass = method.invoke(null, elements).getClass();
+                    fields = getAllParentsFields(givenClass);
+                    methods = getAllParentsMethods(givenClass);
+                    break;
+                }
+            }
 
         Constructor defaultConstructor = givenClass.getDeclaredConstructor();
         defaultConstructor.setAccessible(true);
