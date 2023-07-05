@@ -82,10 +82,10 @@ public class ObjectMaker {
 
         Field[] superClassFields = getAllParentsFields(c.getSuperclass());
         Field[] thisClassFields = c.getDeclaredFields();
-        Field[] ans = new Field[superClassFields.length + thisClassFields.length];
-        System.arraycopy(superClassFields, 0, ans, 0, superClassFields.length);
-        System.arraycopy(thisClassFields, 0, ans, superClassFields.length, thisClassFields.length);
-        return ans;
+        Field[] allFields = new Field[superClassFields.length + thisClassFields.length];
+        System.arraycopy(superClassFields, 0, allFields, 0, superClassFields.length);
+        System.arraycopy(thisClassFields, 0, allFields, superClassFields.length, thisClassFields.length);
+        return allFields;
     }
 
     private Method[] getAllParentsMethods(Class c){
@@ -94,9 +94,9 @@ public class ObjectMaker {
 
         Method[] superClassMethods = getAllParentsMethods(c.getSuperclass());
         Method[] thisClassMethods = c.getDeclaredMethods();
-        Method[] ans = new Method[superClassMethods.length + thisClassMethods.length];
-        System.arraycopy(superClassMethods, 0, ans, 0, superClassMethods.length);
-        System.arraycopy(thisClassMethods, 0, ans, superClassMethods.length, thisClassMethods.length);
-        return ans;
+        Method[] allMethods = new Method[superClassMethods.length + thisClassMethods.length];
+        System.arraycopy(superClassMethods, 0, allMethods, 0, superClassMethods.length);
+        System.arraycopy(thisClassMethods, 0, allMethods, superClassMethods.length, thisClassMethods.length);
+        return allMethods;
     }
 }
