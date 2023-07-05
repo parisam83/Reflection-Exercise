@@ -35,7 +35,12 @@ public class ObjectMaker {
 
         for (Field field : fields){
             field.setAccessible(true);
-            Object value = values.get(field.getName());
+            Object value = null;
+
+            // Check if @Name is used and find the name of the field in the given map
+            if (field.getDeclaredAnnotation(Name.class) == null) value = values.get(field.getName());
+            else value = values.get(field.getDeclaredAnnotation(Name.class).name());
+
             if (value != null) field.set(object, value);
         }
         return null;
