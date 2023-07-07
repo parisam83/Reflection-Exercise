@@ -56,6 +56,9 @@ public class ObjectMaker {
             instance = defaultConstructor.newInstance();
         }
 
+        for (Field field : fields)
+            System.out.println(field);
+        System.out.println("___________________");
         for (Field field : fields){
             field.setAccessible(true);
 
@@ -71,28 +74,52 @@ public class ObjectMaker {
             }
             else {
                 // Check if @Name is used and set the name of the field in fieldName
-                String fieldName;
-                if (field.getDeclaredAnnotation(Name.class) == null) fieldName = field.getName();
-                else fieldName = field.getDeclaredAnnotation(Name.class).name();
+                String fieldName = findFieldName(field);
 
+                System.out.println(fieldName);
                 // Check if fieldName key is available in the map
                 if (values.containsKey(fieldName)) {
                     Object value = values.get(fieldName);
-                    if (value instanceof List<?>) {
-                        Object valueToSet = Array.newInstance(field.getType().getComponentType(), ((List<?>) value).size());
-                        for (int i = 0; i < ((List<?>) value).size(); i++)
-                            Array.set(valueToSet, i, ((List<?>) value).get(i));
-                        field.set(instance, valueToSet);
+                    System.out.println("field: " + field);
+                    System.out.println("value" + value);
+                    if (value instanceof HashMap<?,?>) {
+                        System.out.println("hashmap" + "\n");
+                        // System.out.println("class: " + Arrays.toString(getAllParentsFields(field.getClass())));
+                        // makeObject((Map<String, Object>) value, field.getType().getTypeName());
+                        //System.out.println(initializeFields(field, getAllParentsFields(field.getClass()), (Map<String, Object>) value));
+                        field.set(instance, makeObject((Map<String, Object>) value, field.getType().getTypeName()));
                     }
-                    else if (value instanceof HashMap<?,?>){
-                        Class classToSet = field.getType();
+                    else if (value instanceof List<?>) {
+                        System.out.println("list" + "\n");
+                        handleListValue(instance, field, (List<?>) value);
                     }
-                    else
-                        field.set(instance, value);
+                    else {
+                        System.out.println("primitive" + "\n");
+                        handlePrimitiveValue(instance, field, value);
+                    }
                 }
             }
         }
         return instance;
+    }
+
+    private String findFieldName(Field field) {
+        if (field.getDeclaredAnnotation(Name.class) == null) return field.getName();
+        return field.getDeclaredAnnotation(Name.class).name();
+    }
+
+    private void handleListValue(Object instance, Field field, List<?> value) throws IllegalAccessException {
+        Object valueToSet = Array.newInstance(field.getType().getComponentType(), value.size());
+        for (int i = 0; i < value.size(); i++)
+            Array.set(valueToSet, i, value.get(i));
+        field.set(instance, valueToSet);
+    }
+    private void handlePrimitiveValue(Object instance, Field field, Object value) throws IllegalAccessException {
+        System.out.println("___________ primitive _________");
+        System.out.println(field);
+        System.out.println(instance);
+        System.out.println(value);
+        field.set(instance, value);
     }
 
     private Field[] getAllParentsFields(Class c){
