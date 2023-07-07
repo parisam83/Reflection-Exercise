@@ -18,8 +18,6 @@ public class Main {
         values.put("c", valuesC);
         // A a = (A) objectMaker.makeObject(valuesA, "ir.sharif.math.ap2023.hw7.models.tooDarTooSample.A");
         D d = (D) objectMaker.makeObject(values, "ir.sharif.math.ap2023.hw7.models.tooDarTooSample.D");
-        System.out.println(d);
-        System.out.println(d.c);
-        System.out.println(d.c.b.a.a); // 5*/
+        System.out.println(d.c.b.a.a); // 5
     }
 }

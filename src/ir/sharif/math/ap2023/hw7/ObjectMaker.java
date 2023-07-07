@@ -56,9 +56,6 @@ public class ObjectMaker {
             instance = defaultConstructor.newInstance();
         }
 
-        for (Field field : fields)
-            System.out.println(field);
-        System.out.println("___________________");
         for (Field field : fields){
             field.setAccessible(true);
 
@@ -76,27 +73,15 @@ public class ObjectMaker {
                 // Check if @Name is used and set the name of the field in fieldName
                 String fieldName = findFieldName(field);
 
-                System.out.println(fieldName);
                 // Check if fieldName key is available in the map
                 if (values.containsKey(fieldName)) {
                     Object value = values.get(fieldName);
-                    System.out.println("field: " + field);
-                    System.out.println("value" + value);
-                    if (value instanceof HashMap<?,?>) {
-                        System.out.println("hashmap" + "\n");
-                        // System.out.println("class: " + Arrays.toString(getAllParentsFields(field.getClass())));
-                        // makeObject((Map<String, Object>) value, field.getType().getTypeName());
-                        //System.out.println(initializeFields(field, getAllParentsFields(field.getClass()), (Map<String, Object>) value));
+                    if (value instanceof HashMap<?,?>)
                         field.set(instance, makeObject((Map<String, Object>) value, field.getType().getTypeName()));
-                    }
-                    else if (value instanceof List<?>) {
-                        System.out.println("list" + "\n");
+                    else if (value instanceof List<?>)
                         handleListValue(instance, field, (List<?>) value);
-                    }
-                    else {
-                        System.out.println("primitive" + "\n");
+                    else
                         handlePrimitiveValue(instance, field, value);
-                    }
                 }
             }
         }
@@ -115,10 +100,6 @@ public class ObjectMaker {
         field.set(instance, valueToSet);
     }
     private void handlePrimitiveValue(Object instance, Field field, Object value) throws IllegalAccessException {
-        System.out.println("___________ primitive _________");
-        System.out.println(field);
-        System.out.println(instance);
-        System.out.println(value);
         field.set(instance, value);
     }
 
