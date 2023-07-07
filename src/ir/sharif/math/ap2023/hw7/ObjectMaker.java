@@ -82,17 +82,17 @@ public class ObjectMaker {
                         Object valueToSet = Array.newInstance(field.getType().getComponentType(), ((List<?>) value).size());
                         for (int i = 0; i < ((List<?>) value).size(); i++)
                             Array.set(valueToSet, i, ((List<?>) value).get(i));
-                        field.set(object, valueToSet);
+                        field.set(instance, valueToSet);
                     }
                     else if (value instanceof HashMap<?,?>){
                         Class classToSet = field.getType();
                     }
                     else
-                        field.set(object, value);
+                        field.set(instance, value);
                 }
             }
         }
-        return object;
+        return instance;
     }
 
     private Field[] getAllParentsFields(Class c){
