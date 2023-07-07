@@ -14,10 +14,12 @@ public class Main {
         Map<String, Object> valuesA = new HashMap<>();
         valuesA.put("a", 5);
         valuesB.put("a", valuesA);
-        valuesC.put("b", valuesB);
-        values.put("c", valuesC);
+        valuesC.put("bb", valuesB);
+        values.put("cc", valuesC);
         // A a = (A) objectMaker.makeObject(valuesA, "ir.sharif.math.ap2023.hw7.models.tooDarTooSample.A");
         D d = (D) objectMaker.makeObject(values, "ir.sharif.math.ap2023.hw7.models.tooDarTooSample.D");
         System.out.println(d.c.b.a.a); // 5
+        System.out.println(d == d.d); // true
+        System.out.println(d.c.b.a.INT == d.DDD); // true
     }
 }
