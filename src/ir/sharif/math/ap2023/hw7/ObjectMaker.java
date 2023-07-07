@@ -29,6 +29,7 @@ public class ObjectMaker {
         Class givenClass = classLoader.loadClass(className);
         Field[] fields = getAllParentsFields(givenClass);
         Method[] methods = getAllParentsMethods(givenClass);
+        Object instance = null;
 
         for (Method method : methods)
             if (method.getDeclaredAnnotation(UseAsConstructor.class) != null){
@@ -41,16 +42,19 @@ public class ObjectMaker {
                 }
                 if (!goToNextMethod){
                     method.setAccessible(true);
-                    givenClass = method.invoke(null, elements).getClass();
+                    instance = method.invoke(null, elements);
+                    givenClass = instance.getClass();
                     fields = getAllParentsFields(givenClass);
                     methods = getAllParentsMethods(givenClass);
                     break;
                 }
             }
 
-        Constructor defaultConstructor = givenClass.getDeclaredConstructor();
-        defaultConstructor.setAccessible(true);
-        Object object = defaultConstructor.newInstance();
+        if (instance == null) {
+            Constructor defaultConstructor = givenClass.getDeclaredConstructor();
+            defaultConstructor.setAccessible(true);
+            instance = defaultConstructor.newInstance();
+        }
 
         for (Field field : fields){
             field.setAccessible(true);
