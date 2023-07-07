@@ -1,10 +1,7 @@
 package ir.sharif.math.ap2023.hw7;
 
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -27,6 +24,11 @@ public class ObjectMaker {
     }
 
     public Object makeObject(Map<String, Object> values, String className) throws ReflectiveOperationException {
+        Object instance = handleNoneSetValueFields(values, className);
+        return handleSetValueFields(instance);
+    }
+
+    private Object handleNoneSetValueFields(Map<String, Object> values, String className) throws ReflectiveOperationException {
         Class givenClass = Class.forName(className, true, urlClassLoader);
         Field[] fields = getAllParentsFields(givenClass);
         Method[] methods = getAllParentsMethods(givenClass);
@@ -59,18 +61,7 @@ public class ObjectMaker {
 
         for (Field field : fields){
             field.setAccessible(true);
-
-            // Check if field has setValue annotation
-            if (field.getDeclaredAnnotation(SetValue.class) != null){
-                /*String path = field.getDeclaredAnnotation(SetValue.class).path();
-                while (path.length() > 0){
-                    System.out.println(firstPartOfAddress(path));
-                    // givenClass.getField(path.)
-                }
-                if (path.length() == 0) field.set(object, object);*/
-
-            }
-            else {
+            if (field.getDeclaredAnnotation(SetValue.class) == null){
                 // Check if @Name is used and set the name of the field in fieldName
                 String fieldName = findFieldName(field);
 
@@ -88,19 +79,39 @@ public class ObjectMaker {
         }
         return instance;
     }
+    private Object handleSetValueFields(Object instance) throws ReflectiveOperationException {
+        Class givenClass = instance.getClass();
+        Field[] fields = getAllParentsFields(givenClass);
+        Object instancePointer = instance;
 
-    private Class loadGetClass(String className) {
-        try {
-            Class.forName(className);
-            return ObjectMaker.class.getClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            try {
-                return Class.forName(className);
-                // return urlClassLoader.loadClass(className);
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
+        for (Field field : fields){
+            field.setAccessible(true);
+
+            if (field.getDeclaredAnnotation(SetValue.class) != null){
+                String path = field.getDeclaredAnnotation(SetValue.class).path();
+                while (path.length() > 0){
+                    String firstPart = firstPartOfAddress(path);
+                    path = getTrimmedPath(path);
+                    if (firstPart.equals("..")){
+
+                    }
+                    else{
+                        Field fieldPointer = instancePointer.getClass().getDeclaredField(firstPart);
+                        fieldPointer.setAccessible(true);
+                        instancePointer = fieldPointer.get(instancePointer);
+                    }
+                }
+                field.set(instance, instancePointer);
             }
         }
+        return instance;
+    }
+
+    private String getTrimmedPath(String path) {
+        String firstPart = firstPartOfAddress(path);
+        if (firstPart.length() == path.length())
+            return "";
+        return path.replace(firstPart + "/", "");
     }
 
     private String findFieldName(Field field) {
