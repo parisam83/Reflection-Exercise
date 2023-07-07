@@ -15,8 +15,7 @@ public class Main {
         //      FOR jarPath: copy the jar file's address (until containing directory)
         //      and paste it in a browser, the address should change to "file:///  ...".
         //      then add the jar file's name and replace the value for below.
-        String jarPath = "file:///D:/Mefi/University/Term%202/Advanced%20Programming/Tamrin%207/hw7/" +
-                "src/ir/sharif/math/ap2023/hw7/models/urlSample/jackson-core-2.14.2.jar";
+        String jarPath = "file:///F:/Advanced%20Programming/Reflection-Exercise/src/ir/sharif/math/ap2023/hw7/models/urlSample/jackson-core-2.14.2.jar";
 
         ObjectMaker objectMaker = new ObjectMaker(new URL(jarPath));
         Map<String, Object> values = new HashMap<>();
