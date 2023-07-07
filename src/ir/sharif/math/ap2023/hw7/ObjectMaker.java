@@ -6,9 +6,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 public class ObjectMaker {
+    private final URLClassLoader urlClassLoader;
     private static final List<Class<?>> primitiveClasses = Arrays.asList(
             boolean.class,
             short.class,
@@ -21,12 +23,11 @@ public class ObjectMaker {
     );
 
     public ObjectMaker(URL... urls) {
-        // TODO
+        urlClassLoader = new URLClassLoader(urls);
     }
 
     public Object makeObject(Map<String, Object> values, String className) throws ReflectiveOperationException {
-        ClassLoader classLoader = ObjectMaker.class.getClassLoader();
-        Class givenClass = classLoader.loadClass(className);
+        Class givenClass = Class.forName(className, true, urlClassLoader);
         Field[] fields = getAllParentsFields(givenClass);
         Method[] methods = getAllParentsMethods(givenClass);
         Object instance = null;
@@ -86,6 +87,20 @@ public class ObjectMaker {
             }
         }
         return instance;
+    }
+
+    private Class loadGetClass(String className) {
+        try {
+            Class.forName(className);
+            return ObjectMaker.class.getClassLoader().loadClass(className);
+        } catch (ClassNotFoundException e) {
+            try {
+                return Class.forName(className);
+                // return urlClassLoader.loadClass(className);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
     private String findFieldName(Field field) {
