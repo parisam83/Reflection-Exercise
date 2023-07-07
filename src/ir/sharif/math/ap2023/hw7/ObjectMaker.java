@@ -55,22 +55,37 @@ public class ObjectMaker {
         for (Field field : fields){
             field.setAccessible(true);
 
-            // Check if @Name is used and set the name of the field in fieldName
-            String fieldName;
-            if (field.getDeclaredAnnotation(Name.class) == null) fieldName = field.getName();
-            else fieldName = field.getDeclaredAnnotation(Name.class).name();
-
-            // Check if fieldName key is available in the map
-            if (values.containsKey(fieldName)){
-                Object value = values.get(fieldName);
-                if (value instanceof List<?>){
-                    Object valueToSet = Array.newInstance(field.getType().getComponentType(), ((List<?>) value).size());
-                    for (int i = 0; i < ((List<?>) value).size(); i++)
-                        Array.set(valueToSet, i, ((List<?>) value).get(i));
-                    field.set(object, valueToSet);
+            // Check if field has setValue annotation
+            if (field.getDeclaredAnnotation(SetValue.class) != null){
+                /*String path = field.getDeclaredAnnotation(SetValue.class).path();
+                while (path.length() > 0){
+                    System.out.println(firstPartOfAddress(path));
+                    // givenClass.getField(path.)
                 }
-                else
-                    field.set(object, value);
+                if (path.length() == 0) field.set(object, object);*/
+
+            }
+            else {
+                // Check if @Name is used and set the name of the field in fieldName
+                String fieldName;
+                if (field.getDeclaredAnnotation(Name.class) == null) fieldName = field.getName();
+                else fieldName = field.getDeclaredAnnotation(Name.class).name();
+
+                // Check if fieldName key is available in the map
+                if (values.containsKey(fieldName)) {
+                    Object value = values.get(fieldName);
+                    if (value instanceof List<?>) {
+                        Object valueToSet = Array.newInstance(field.getType().getComponentType(), ((List<?>) value).size());
+                        for (int i = 0; i < ((List<?>) value).size(); i++)
+                            Array.set(valueToSet, i, ((List<?>) value).get(i));
+                        field.set(object, valueToSet);
+                    }
+                    else if (value instanceof HashMap<?,?>){
+                        Class classToSet = field.getType();
+                    }
+                    else
+                        field.set(object, value);
+                }
             }
         }
         return object;
@@ -98,5 +113,12 @@ public class ObjectMaker {
         System.arraycopy(superClassMethods, 0, allMethods, 0, superClassMethods.length);
         System.arraycopy(thisClassMethods, 0, allMethods, superClassMethods.length, thisClassMethods.length);
         return allMethods;
+    }
+
+    private String firstPartOfAddress(String path){
+        for (int i = 0; i < path.length(); i++)
+            if (path.charAt(i) == '/')
+                return path.substring(0, i);
+        return path;
     }
 }
